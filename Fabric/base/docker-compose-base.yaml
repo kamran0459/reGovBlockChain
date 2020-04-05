@@ -1,0 +1,121 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+  orderer:
+        image: hyperledger/fabric-orderer:1.4.0
+        environment:
+            # - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${CORE_PEER_NETWORKID}_behave
+            - ORDERER_HOME=/var/hyperledger/orderer
+            - ORDERER_GENERAL_LOGLEVEL=DEBUG
+            - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+            - ORDERER_GENERAL_LISTENPORT=7050
+            - ORDERER_GENERAL_LEDGERTYPE=ram
+            - ORDERER_GENERAL_GENESISMETHOD=file
+            - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/genesis.block
+            - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+            - CONFIGTX_ORDERER_BATCHSIZE_MAXMESSAGECOUNT=${CONFIGTX_ORDERER_BATCHSIZE_MAXMESSAGECOUNT}
+            - CONFIGTX_ORDERER_BATCHTIMEOUT=${CONFIGTX_ORDERER_BATCHTIMEOUT}
+            # - CONFIGTX_ORDERER_ADDRESSES=[0.0.0.0:7050]
+            # TLS settings
+            - ORDERER_GENERAL_TLS_ENABLED=true
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=${ORDERER_GENERAL_TLS_PRIVATEKEY}
+            - ORDERER_GENERAL_TLS_CERTIFICATE=${ORDERER_GENERAL_TLS_CERTIFICATE}
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]           
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+        command: orderer
+        ports:
+          - '7050'
+
+  peer0.hquarter.mtct.com:
+    container_name: peer0.hquarter.mtct.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.hquarter.mtct.com
+      - CORE_PEER_ADDRESS=peer0.hquarter.mtct.com:7051
+      - CORE_PEER_LISTENADDRESS=peer0.hquarter.mtct.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.hquarter.mtct.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.hquarter.mtct.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hquarter.mtct.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hquarter.mtct.com:7051
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_LOCALMSPID=hquarterMSP
+    volumes:
+        -  /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/hquarter.mtct.com/peers/peer0.hquarter.mtct.com/tls:/etc/hyperledger/fabric/tls
+        - ../crypto-config/peerOrganizations/hquarter.mtct.com/peers/peer0.hquarter.mtct.com/msp:/etc/hyperledger/fabric/msp
+        - ../chaindata/peer0.hquarter.mtct.com:/var/hyperledger/production
+    ports:
+      - 7051:7051 # peer itself
+      - 7052:7052 # chaincode
+      - 7053:7053 # events
+
+  peer0.invester.mtct.com:
+    container_name: peer0.invester.mtct.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.invester.mtct.com
+      - CORE_PEER_ADDRESS=peer0.invester.mtct.com:7051
+      - CORE_PEER_LISTENADDRESS=peer0.invester.mtct.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.invester.mtct.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.invester.mtct.com:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.invester.mtct.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.invester.mtct.com:7051
+      - CORE_PEER_LOCALMSPID=investerMSP
+    volumes:
+        -  /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/invester.mtct.com/peers/peer0.invester.mtct.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/invester.mtct.com/peers/peer0.invester.mtct.com/tls:/etc/hyperledger/fabric/tls
+        - ../chaindata/peer0.invester.mtct.com:/var/hyperledger/production
+    ports:
+      - 8051:7051
+      - 8052:8052
+      - 8053:7053
+
+  peer0.adviser.mtct.com:
+    container_name: peer0.adviser.mtct.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.adviser.mtct.com
+      - CORE_PEER_ADDRESS=peer0.adviser.mtct.com:7051
+      - CORE_PEER_LISTENADDRESS=peer0.adviser.mtct.com:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.adviser.mtct.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.adviser.mtct.com:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.adviser.mtct.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.adviser.mtct.com:7051
+      - CORE_PEER_LOCALMSPID=adviserMSP
+    volumes:
+        -  /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/adviser.mtct.com/peers/peer0.adviser.mtct.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/adviser.mtct.com/peers/peer0.adviser.mtct.com/tls:/etc/hyperledger/fabric/tls
+        - ../chaindata/peer0.adviser.mtct.com:/var/hyperledger/production
+    ports:
+      - 9051:7051
+      - 9052:9052
+      - 9053:7053
+
+  zookeeper:
+    image: hyperledger/fabric-zookeeper:0.4.15
+
+  
+  kafka:
+    image: hyperledger/fabric-kafka:0.4.15
+    environment:
+      - KAFKA_LOG_RETENTION_MS=-1
+      - KAFKA_MESSAGE_MAX_BYTES=104857600
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=104857600
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=${KAFKA_DEFAULT_REPLICATION_FACTOR}
+      - KAFKA_MIN_INSYNC_REPLICAS=2

@@ -1,0 +1,71 @@
+Bring Up the Network 
+==============================================================================================================================
+==============================================================================================================================
+==============================================================================================================================
+
+
+docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml up -d
+
+
+
+
+Create and Join the Channel 
+==============================================================================================================================
+==============================================================================================================================
+==============================================================================================================================
+
+docker exec -it cli bash
+
+peer channel create -o orderer2.mtct.com:9050 -c mtctchannel -f ./channel-artifacts/channel.tx  --tls --cafile ./crypto/ordererOrganizations/mtct.com/orderers/orderer2.mtct.com/msp/tlscacerts/tlsca.mtct.com-cert.pem
+
+peer channel join -b randschannel.block
+
+
+Update Anchor Peer  for Each Org
+==============================================================================================================================
+==============================================================================================================================
+==============================================================================================================================
+
+peer channel update -o orderer2.mtct.com:9050 -c mtctchannel -f ./channel-artifacts/headquarterMSP.tx --tls --cafile ./crypto/ordererOrganizations/mtct.com/orderers/orderer2.mtct.com/msp/tlscacerts/tlsca.mtct.com-cert.pem
+
+peer channel update -o orderer2.mtct.com:9050 -c mtctchannel -f ./channel-artifacts/investorsMSP.tx --tls --cafile ./crypto/ordererOrganizations/mtct.com/orderers/orderer2.mtct.com/msp/tlscacerts/tlsca.mtct.com-cert.pem
+
+peer channel update -o orderer2.mtct.com:9050 -c mtctchannel -f ./channel-artifacts/investorsMSP.tx --tls --cafile ./crypto/ordererOrganizations/mtct.com/orderers/orderer2.mtct.com/msp/tlscacerts/tlsca.mtct.com-cert.pem
+
+
+
+
+
+
+
+
+
+Environment Variables for peers if Needed
+==============================================================================================================================
+==============================================================================================================================
+==============================================================================================================================
+
+CORE_PEER_ADDRESS=peer0.hquarter.mtct.com:7051
+CORE_PEER_LOCALMSPID=hquarterMSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/hquarter.mtct.com/peers/peer0.hquarter.mtct.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/hquarter.mtct.com/peers/peer0.hquarter.mtct.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/hquarter.mtct.com/peers/peer0.hquarter.mtct.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/hquarter.mtct.com/users/Admin@hquarter.mtct.com/msp
+
+CORE_PEER_ADDRESS=peer0.invester.mtct.com:8051
+CORE_PEER_LOCALMSPID=investerMSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/invester.mtct.com/peers/peer0.invester.mtct.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/invester.mtct.com/peers/peer0.invester.mtct.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/invester.mtct.com/peers/peer0.invester.mtct.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/invester.mtct.com/users/Admin@invester.mtct.com/msp
+
+
+CORE_PEER_ADDRESS=peer0.adviser.mtct.com:9051
+CORE_PEER_LOCALMSPID=adviserMSP
+CORE_PEER_TLS_ENABLED=true
+CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/adviser.mtct.com/peers/peer0.adviser.mtct.com/tls/server.crt
+CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/adviser.mtct.com/peers/peer0.adviser.mtct.com/tls/server.key
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/adviser.mtct.com/peers/peer0.adviser.mtct.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/adviser.mtct.com/users/Admin@adviser.mtct.com/msp

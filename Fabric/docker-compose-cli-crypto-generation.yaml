@@ -1,0 +1,46 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+
+
+networks:
+  mtct:
+
+services:
+
+  cli:
+    container_name: cli1
+    image: hyperledger/fabric-tools:1.4.0
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=DEBUG
+      # - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      # - CORE_PEER_ADDRESS=peer0.dc.dxb.com:7051
+      # - CORE_PEER_LOCALMSPID=dcMSP
+      # - CORE_PEER_TLS_ENABLED=true
+      # - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/dc.dxb.com/peers/peer0.dc.dxb.com/tls/server.crt
+      # - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/dc.dxb.com/peers/peer0.dc.dxb.com/tls/server.key
+      # - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/dc.dxb.com/peers/peer0.dc.dxb.com/tls/ca.crt
+      # - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/dc.dxb.com/users/Admin@dc.dxb.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    # extra_hosts:
+    #   - "orderer0.dxb.com:192.168.1.66"
+    volumes:
+        - /var/run/:/host/var/run/
+        # - ./../chaincode/:/opt/gopath/src/github.com/chaincode
+        # - ./:/window
+        # - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        # - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        # - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+        - ./materials:/opt/gopath/src/github.com/hyperledger/fabric/peer/materials
+    networks:
+      - mtct

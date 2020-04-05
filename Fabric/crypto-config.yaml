@@ -1,0 +1,42 @@
+
+OrdererOrgs:
+  - Name: Orderer
+    Domain: mtct.com
+    Specs:
+      - Hostname: orderer0
+      - Hostname: orderer1
+      - Hostname: orderer2
+  
+  # - Name: Orderer1
+  #   Domain: orderer1.mtct.com
+  #   Specs:
+  #     - Hostname: orderer
+  
+  # - Name: Orderer2
+  #   Domain: orderer2.mtct.com
+  #   Specs:
+  #     - Hostname: orderer
+      
+PeerOrgs:
+  - Name: hquarter
+    Domain: hquarter.mtct.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 10
+  - Name: invester
+    Domain: invester.mtct.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 10
+  - Name: adviser
+    Domain: adviser.mtct.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 10
+  

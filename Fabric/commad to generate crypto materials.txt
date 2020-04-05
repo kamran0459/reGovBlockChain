@@ -1,0 +1,60 @@
+As for the windows or we don't have tools to generate the crypto materials then we have to do following:
+1) Comment all the the things in docker-compose-cli.yml
+2) create a new voulume or refer to this cli config
+cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:2.0.1
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+    #  - CORE_PEER_ADDRESS=peer0.headquartermtct.com:6051
+    #  - CORE_PEER_LOCALMSPID=headquarterMSP
+    #  - CORE_PEER_TLS_ENABLED=true
+    #  - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/headquartermtct.com/peers/peer0.headquartermtct.com/tls/server.crt
+    #  - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/headquartermtct.com/peers/peer0.headquartermtct.com/tls/server.key
+    #  - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/headquartermtct.com/peers/peer0.headquartermtct.com/tls/ca.crt
+    #  - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/headquartermtct.com/users/Admin@headquartermtct.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        # - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode
+        # - ./:/window
+        # - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        # - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        # - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+        - ./materials:/opt/gopath/src/github.com/hyperledger/fabric/peer/materials
+    # depends_on:
+    #   - orderer0.mtctorderer.com
+    #   - orderer1.mtctorderer.com
+    #   - orderer2.mtctorderer.com
+    #   - peer0.headquartermtct.com
+    #   - peer1.headquartermtct.com
+    #   - peer0.advisersmtct.com
+    #   - peer1.advisersmtct.com
+    #   - peer0.investorsmtct.com
+    #   - peer1.investorsmtct.com
+    networks:
+      - mtct
+3) docker-compose -f docker-compose-cli.yaml up -d
+4) paste both files in materials mounted folder configtx.yaml and crypto-config.yaml
+5) run the below commands
+
+cryptogen generate --config=./crypto-config.yaml
+
+configtxgen -profile MTCTKafka -channelID orderer-system-channel -outputBlock ./channel-artifacts/genesis.block
+
+if ERROR change working dir by export FABRIC_CFG_PATH=$PWD
+
+configtxgen -profile MTCTChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID mtctchannel
+
+configtxgen -profile MTCTChannel -outputAnchorPeersUpdate ./channel-artifacts/headquarterMSP.tx -channelID mtctchannel -asOrg hquarterMSP
+
+configtxgen -profile MTCTChannel -outputAnchorPeersUpdate ./channel-artifacts/advisersMSP.tx -channelID mtctchannel -asOrg adviserMSP
+
+configtxgen -profile MTCTChannel -outputAnchorPeersUpdate ./channel-artifacts/investorsMSP.tx -channelID mtctchannel -asOrg investerMSP
